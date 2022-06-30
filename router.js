@@ -3,7 +3,7 @@ var app = express();
 var fs = require('fs');
 var router = express.Router();
 var path = require('path');
-
+var { student, student} = require('./schema')
 var {authorization, signup} = require('./authentication.js');
 
 
@@ -26,8 +26,25 @@ router.get('/',(req, res) => {
     console.log(error);
   }
 })
-router.post('/signup',signup,(req, res) => {
-    res.send('Sucessfully signed up');
+router.post('/signup',async (req, res) => {
+    try {
+        var {name,email,phone,age,password,username} = req.body;
+        const stud = new student({name, email, phone, age, password,username});
+        await stud.save()
+        var data ={
+            success: true,
+            data: {stud},
+            message:"Data saved successfully"
+        }
+        res.status(201).json(data);        
+    } catch (error){
+        var data = {
+            success: false,
+            message:error.message
+        }
+        res.status(400).json(data)
+        console.log(error);
+    }
 })
 router.get('/:id',authorization,(req, res) => {
     try{

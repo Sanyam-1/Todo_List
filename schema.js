@@ -1,25 +1,48 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
-var student = new mongoose.Schema({
+var _student = new mongoose.Schema({
     name: {
-        type: string,
+        type: String,
         required: true,
     },
     email:{
-        type: string,
+        type: String,
         required: true,
         unique: true,
     },
     phone:{
-        type: string,
+        type: Number,
+        required: true,
+        unique: true,
+    },
+    username:{
+        type: String,
         required: true,
         unique: true,
     },
     age:{
         type: Number,
+        default:10
     },
-    address:[{
-        
-    }],
-    isVerified:Boolean,
+    password:{
+        type: String,
+        required: true,
+    }
+},{
+    timestamps: true
 })
+
+_student.pre('save',function(next){
+    var salt= bcrypt.genSaltSync(5)
+    var hashedpassword = bcrypt.hashSync(this.password,salt)
+    this.password = hashedpassword;
+    next()
+})
+
+
+const student   = mongoose.model('Student', _student);
+
+module.exports ={
+    student
+}
